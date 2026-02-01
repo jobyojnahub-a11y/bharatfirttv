@@ -118,50 +118,13 @@ export function cleanHtmlContent(html: string): string {
     .trim()
 }
 
-// Helper function to get featured image
-export async function getFeaturedImage(post: WordPressPost): Promise<string> {
+// Helper function to get featured image (sync version)
+export function getFeaturedImage(post: WordPressPost): string {
   if (post._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
     return post._embedded['wp:featuredmedia'][0].source_url
   }
   
-  // If no featured image, try to generate one using OpenAI
-  const categories = getPostCategories(post)
-  const category = categories[0] || 'सामान्य'
-  const title = post.title.rendered
-  
-  try {
-    // Try to generate AI image
-    const aiImage = await generateNewsImage(title, category)
-    if (aiImage && aiImage !== '') {
-      return aiImage
-    }
-  } catch (error) {
-    console.log('AI image generation failed, using fallback:', error)
-  }
-  
-  // Fallback to category-based images
-  const fallbackImages = {
-    'World': 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=800&h=400&fit=crop',
-    'देश': 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&h=400&fit=crop',
-    'दुनिया': 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=800&h=400&fit=crop',
-    'खेल': 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&h=400&fit=crop',
-    'मनोरंजन': 'https://images.unsplash.com/photo-1489599904472-af35ff2c7c3d?w=800&h=400&fit=crop',
-    'राजनीति': 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&h=400&fit=crop',
-    'तकनीक': 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=400&fit=crop',
-    'व्यापार': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop',
-    'स्वास्थ्य': 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=400&fit=crop'
-  }
-
-  return fallbackImages[category as keyof typeof fallbackImages] || 'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=800&h=400&fit=crop'
-
-}
-
-// Synchronous version for immediate use (fallback only)
-export function getFeaturedImageSync(post: WordPressPost): string {
-  if (post._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
-    return post._embedded['wp:featuredmedia'][0].source_url
-  }
-  
+  // Use category-based fallback images
   const categories = getPostCategories(post)
   const category = categories[0] || 'सामान्य'
   
@@ -179,6 +142,7 @@ export function getFeaturedImageSync(post: WordPressPost): string {
 
   return fallbackImages[category as keyof typeof fallbackImages] || 'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=800&h=400&fit=crop'
 }
+
 
 // Helper function to get categories
 export function getPostCategories(post: WordPressPost): string[] {

@@ -2,7 +2,7 @@ import Header from '@/components/Header'
 import BreakingNews from '@/components/BreakingNews'
 import NewsCard from '@/components/NewsCard'
 import BlogStatus from '@/components/BlogStatus'
-import { fetchWordPressPosts, getFeaturedImageSync, getPostCategories, formatDate, cleanHtmlContent } from '@/lib/wordpress'
+import { fetchWordPressPosts, getFeaturedImage, getPostCategories, formatDate, cleanHtmlContent } from '@/lib/wordpress'
 
 // Fallback news data if WordPress is not available
 const fallbackNewsData = [
@@ -67,7 +67,7 @@ export default async function Home() {
         id: post.id,
         title: post.title.rendered,
         excerpt: cleanHtmlContent(post.excerpt.rendered),
-        image: getFeaturedImageSync(post),
+        image: getFeaturedImage(post),
         category: getPostCategories(post)[0] || 'सामान्य',
         publishedAt: formatDate(post.date),
         isMainStory: index === 0,

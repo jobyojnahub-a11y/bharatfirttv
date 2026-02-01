@@ -13,75 +13,27 @@ export interface ImageGenerationResponse {
 }
 
 export async function generateImage(request: ImageGenerationRequest): Promise<ImageGenerationResponse> {
-  // API key will be added manually on VPS
-  const apiKey = process.env.OPENAI_API_KEY || 'API_KEY_PLACEHOLDER'
-
-  if (!apiKey || apiKey === 'API_KEY_PLACEHOLDER') {
-    console.warn('OpenAI API key not found. Image generation disabled.')
-    return {
-      success: false,
-      error: 'OpenAI API key not configured'
-    }
-  }
-
-  try {
-    const response = await fetch('https://api.openai.com/v1/images/generations', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        prompt: request.prompt,
-        n: request.n || 1,
-        size: request.size || '512x512',
-        response_format: 'url'
-      })
-    })
-
-    if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`)
-    }
-
-    const data = await response.json()
-    
-    if (data.data && data.data.length > 0) {
-      return {
-        success: true,
-        imageUrl: data.data[0].url
-      }
-    } else {
-      return {
-        success: false,
-        error: 'No image generated'
-      }
-    }
-  } catch (error) {
-    console.error('Error generating image:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }
+  // OpenAI disabled - using fallback images only
+  console.log('OpenAI disabled, using fallback images')
+  return {
+    success: false,
+    error: 'OpenAI disabled - using fallback images'
   }
 }
 
-// Helper function to generate news-related images
+// Helper function to get category-based fallback images
 export async function generateNewsImage(title: string, category: string): Promise<string> {
-  const prompt = `Create a professional news image for: "${title}". Category: ${category}. Style: Modern, clean, news-appropriate, Indian context, high quality, realistic`
-  
-  const result = await generateImage({
-    prompt,
-    size: '1024x1024',
-    n: 1
-  })
-
-  if (result.success && result.imageUrl) {
-    return result.imageUrl
-  }
-
-  // Fallback to Unsplash if OpenAI fails
+  // Always use fallback images - no OpenAI needed
   const fallbackImages = {
     'World': 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=800&h=400&fit=crop',
+    'देश': 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&h=400&fit=crop',
+    'दुनिया': 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=800&h=400&fit=crop',
+    'खेल': 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&h=400&fit=crop',
+    'मनोरंजन': 'https://images.unsplash.com/photo-1489599904472-af35ff2c7c3d?w=800&h=400&fit=crop',
+    'राजनीति': 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&h=400&fit=crop',
+    'तकनीक': 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=400&fit=crop',
+    'व्यापार': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop',
+    'स्वास्थ्य': 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=400&fit=crop',
     'Politics': 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&h=400&fit=crop',
     'Sports': 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&h=400&fit=crop',
     'Entertainment': 'https://images.unsplash.com/photo-1489599904472-af35ff2c7c3d?w=800&h=400&fit=crop',

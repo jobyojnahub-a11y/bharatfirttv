@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Header from '@/components/Header'
-import { fetchWordPressPostBySlug, getFeaturedImageSync, getPostCategories, formatDate, cleanHtmlContent, getPostAuthor } from '@/lib/wordpress'
+import { fetchWordPressPostBySlug, getFeaturedImage, getPostCategories, formatDate, cleanHtmlContent, getPostAuthor } from '@/lib/wordpress'
 import Link from 'next/link'
 import { Calendar, User, MessageCircle, Share2, Heart, Bookmark } from 'lucide-react'
 
@@ -17,7 +17,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound()
   }
 
-  const featuredImage = getFeaturedImageSync(post)
+  const featuredImage = getFeaturedImage(post)
   const categories = getPostCategories(post)
   const author = getPostAuthor(post)
   const publishedDate = formatDate(post.date)
