@@ -76,9 +76,10 @@ export default function Header() {
                   {isAdmin && (
                     <Link
                       href="/admin"
-                      className="text-xs bg-primary-red text-white px-2 py-1 rounded hindi-text hover:opacity-90"
+                      className="text-xs bg-primary-red text-white px-2 py-1 rounded hindi-text hover:opacity-90 animate-pulse-custom"
+                      title="Admin Panel"
                     >
-                      एडमिन
+                      🛠️ एडमिन
                     </Link>
                   )}
                   <div className="flex items-center space-x-2">
@@ -96,13 +97,22 @@ export default function Header() {
                   </div>
                 </div>
               ) : (
-                <button
-                  onClick={() => setShowAuthModal(true)}
-                  className="flex items-center space-x-1 text-primary-red hover:bg-red-50 px-2 py-1 rounded text-sm font-medium hindi-text"
-                >
-                  <User className="w-4 h-4" />
-                  <span>लॉगिन</span>
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setShowAuthModal(true)}
+                    className="flex items-center space-x-1 text-primary-red hover:bg-red-50 px-2 py-1 rounded text-sm font-medium hindi-text"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>लॉगिन</span>
+                  </button>
+                  <Link
+                    href="/admin"
+                    className="text-xs bg-gray-600 text-white px-2 py-1 rounded hindi-text hover:bg-gray-700"
+                    title="Admin Panel (Login Required)"
+                  >
+                    🛠️ एडमिन
+                  </Link>
+                </div>
               )}
               
               {/* Mobile Menu Button */}
