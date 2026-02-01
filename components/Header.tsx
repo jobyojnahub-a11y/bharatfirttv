@@ -7,12 +7,12 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const navItems = [
+    { name: 'होम', href: '/' },
+    { name: 'ब्लॉग', href: '/blog' },
     { name: 'देश', href: '/desh' },
     { name: 'दुनिया', href: '/duniya' },
     { name: 'खेल', href: '/khel' },
     { name: 'मनोरंजन', href: '/manoranjan' },
-    { name: 'बिजनेस', href: '/business' },
-    { name: 'टेक्नोलॉजी', href: '/technology' },
     { name: 'राजनीति', href: '/politics' },
   ]
 

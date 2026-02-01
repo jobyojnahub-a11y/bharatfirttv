@@ -1,10 +1,11 @@
-'use client'
-
 import Header from '@/components/Header'
 import BreakingNews from '@/components/BreakingNews'
 import NewsCard from '@/components/NewsCard'
+import BlogStatus from '@/components/BlogStatus'
+import { fetchWordPressPosts, getFeaturedImage, getPostCategories, formatDate, cleanHtmlContent } from '@/lib/wordpress'
 
-const newsData = [
+// Fallback news data if WordPress is not available
+const fallbackNewsData = [
   {
     id: 1,
     title: "अमेरिका को ग्रीनलैंड पर कब्जा करने से रोक पाएगा यूरोप: हमला हुआ तो नाटो का क्या होगा, डेनमार्क की तैयारी कैसी?",
@@ -56,21 +57,53 @@ const newsData = [
   }
 ]
 
-export default function Home() {
+export default async function Home() {
+  // Fetch WordPress posts
+  const wordPressPosts = await fetchWordPressPosts(6)
+  
+  // Convert WordPress posts to our news format
+  const newsData = wordPressPosts.length > 0 
+    ? wordPressPosts.map((post, index) => ({
+        id: post.id,
+        title: post.title.rendered,
+        excerpt: cleanHtmlContent(post.excerpt.rendered),
+        image: getFeaturedImage(post),
+        category: getPostCategories(post)[0] || 'सामान्य',
+        publishedAt: formatDate(post.date),
+        isMainStory: index === 0
+      }))
+    : fallbackNewsData
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       <BreakingNews />
       
+      {/* Blog Status Indicator */}
+      <BlogStatus 
+        postsCount={wordPressPosts.length} 
+        isWordPressConnected={wordPressPosts.length > 0} 
+      />
+      
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Latest News Section */}
         <section className="mb-12">
-          <div className="flex items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 hindi-text">आज की ताजा खबरें</h2>
-            <div className="ml-4 bg-accent-500 text-white px-3 py-1 rounded-full text-sm">
-              Latest Podcast
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center">
+              <h2 className="text-2xl font-bold text-gray-900 hindi-text">आज की ताजा खबरें</h2>
+              <div className="ml-4 bg-accent-500 text-white px-3 py-1 rounded-full text-sm">
+                {wordPressPosts.length > 0 ? `${wordPressPosts.length} नई खबरें` : 'Latest Podcast'}
+              </div>
             </div>
+            <a 
+              href="https://blog.bharatfirsttv.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-sm text-primary-600 hover:text-primary-700 underline"
+            >
+              Blog पर जाएं →
+            </a>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
