@@ -149,7 +149,8 @@ export function getPostCategories(post: WordPressPost): string[] {
   if (post._embedded?.['wp:term']?.[0]) {
     return post._embedded['wp:term'][0].map(term => term.name)
   }
-  return ['सामान्य']
+  // Return WordPress category names only - no custom additions
+  return ['Uncategorized']
 }
 
 // Helper function to format date

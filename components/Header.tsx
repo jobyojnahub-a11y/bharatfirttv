@@ -19,7 +19,7 @@ export default function Header() {
   return (
     <>
       {/* Top Bar */}
-      <div className="bg-primary-500 text-white py-2">
+      <div className="bg-red-600 text-white py-2">
         <div className="container mx-auto px-4 flex justify-between items-center text-sm">
           <div className="flex items-center space-x-4">
             <span>🇮🇳 देश दुनिया खेल मनोरंजन</span>
@@ -35,30 +35,38 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Main Header */}
-      <header className="bg-white shadow-md sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between py-4">
-            {/* Logo */}
-            <div className="flex items-center">
-              <div className="bg-primary-500 text-white px-4 py-2 font-bold text-xl">
-                भारत<br />FIRST
-              </div>
-              <span className="ml-2 text-gray-600 text-sm">भारत की आवाज़</span>
+      {/* Advertisement Header Panel */}
+      <div className="bg-gray-100 border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="bg-red-600 text-white px-4 py-2 font-bold text-2xl">
+              भारत<br />FIRST
             </div>
+            <div className="flex-1 mx-8">
+              <div className="bg-gray-300 h-20 flex items-center justify-center text-gray-600 text-lg font-bold border">
+                ADVERTISEMENT
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
+      {/* Main Navigation */}
+      <nav className="bg-white shadow-md sticky top-0 z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between py-3">
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center space-x-8">
               {navItems.map((item) => (
                 <a
                   key={item.name}
                   href={item.href}
-                  className="text-gray-700 hover:text-primary-500 font-medium transition-colors duration-200 hindi-text"
+                  className="text-gray-700 hover:text-red-600 font-medium transition-colors duration-200 hindi-text"
                 >
                   {item.name}
                 </a>
               ))}
-            </nav>
+            </div>
 
             {/* Right Side Icons */}
             <div className="flex items-center space-x-4">
@@ -94,7 +102,7 @@ export default function Header() {
                   <a
                     key={item.name}
                     href={item.href}
-                    className="text-gray-700 hover:text-primary-500 font-medium transition-colors duration-200 hindi-text"
+                    className="text-gray-700 hover:text-red-600 font-medium transition-colors duration-200 hindi-text"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
@@ -104,7 +112,7 @@ export default function Header() {
             </div>
           )}
         </div>
-      </header>
+      </nav>
     </>
   )
 }
