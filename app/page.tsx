@@ -93,93 +93,54 @@ export default async function Home() {
         isWordPressConnected={wordPressPosts.length > 0} 
       />
       
-      {/* Main Content - Exact Screenshot Layout */}
-      <main className="bg-gray-50 py-4">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-12 gap-4">
-            {/* Left Advertisement */}
+      {/* Main Content Layout */}
+      <main className="bg-white">
+        <div className="container mx-auto px-4 py-6">
+          <div className="grid grid-cols-12 gap-6">
+            {/* Left Vertical Advertisement */}
             <div className="col-span-1 hidden lg:block">
-              <div className="bg-gray-300 h-full min-h-[600px] flex items-center justify-center text-gray-600 text-xs font-bold transform -rotate-90 border">
-                ADVERTISEMENT
+              <div className="h-full min-h-[800px] bg-gray-200 border flex items-center justify-center">
+                <div className="transform -rotate-90 text-gray-600 font-bold text-sm whitespace-nowrap advertisement-text">
+                  ADVERTISEMENT
+                </div>
               </div>
             </div>
 
             {/* Main Content Area */}
-            <div className="col-span-12 lg:col-span-10">
-              {/* Main Story */}
-              <div className="bg-white rounded-lg overflow-hidden shadow-lg mb-6">
-                <div className="relative">
-                  <img
-                    src={mainStory.image}
-                    alt={mainStory.title}
-                    className="w-full h-80 object-cover"
-                  />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium">
-                      {mainStory.category}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <h1 className="text-2xl font-bold text-gray-900 hindi-text mb-4 leading-tight">
-                    {mainStory.title}
-                  </h1>
-                  <p className="text-gray-700 hindi-text text-base leading-relaxed mb-4">
-                    {mainStory.excerpt}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <span>{mainStory.category}</span>
-                      <span>⭐</span>
-                      <span>{mainStory.publishedAt}</span>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <button className="flex items-center space-x-1 text-yellow-500 hover:text-yellow-600">
-                        <span className="text-lg">😊</span>
-                      </button>
-                      <button className="flex items-center space-x-1 text-blue-600 hover:text-blue-700">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
-                        </svg>
-                      </button>
-                      <button className="flex items-center space-x-1 text-gray-600 hover:text-gray-700">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                        </svg>
-                      </button>
-                      <button className="flex items-center space-x-1 text-gray-600 hover:text-gray-700">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Side Stories Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {sideStories.map((story) => (
-                  <div key={story.id} className="bg-white rounded-lg overflow-hidden shadow-lg">
-                    <div className="flex">
-                      <img
-                        src={story.image}
-                        alt={story.title}
-                        className="w-32 h-24 object-cover flex-shrink-0"
-                      />
-                      <div className="p-4 flex-1">
-                        <h3 className="text-sm font-semibold text-gray-900 hindi-text line-clamp-2 mb-2">
-                          {story.title}
-                        </h3>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
-                            {story.category}
+            <div className="col-span-12 lg:col-span-10 space-y-8">
+              
+              {/* Popular Blogs Section */}
+              <section>
+                <h2 className="text-2xl font-bold text-gray-900 hindi-text mb-6 border-b-2 border-red-600 pb-2 inline-block">
+                  लोकप्रिय ब्लॉग
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {newsData.slice(0, 3).map((post) => (
+                    <article key={post.id} className="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="relative h-48">
+                        <img
+                          src={post.image}
+                          alt={post.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-3 left-3">
+                          <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
+                            {post.category}
                           </span>
-                          <span className="text-gray-500 text-xs">{story.publishedAt}</span>
                         </div>
-                        <div className="flex items-center space-x-2">
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-bold text-gray-900 hindi-text mb-3 line-clamp-2 leading-tight">
+                          {post.title}
+                        </h3>
+                        <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+                          <span>{post.category}</span>
+                          <span>⭐</span>
+                          <span>{post.publishedAt}</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
                           <button className="text-yellow-500 hover:text-yellow-600">
-                            <span className="text-sm">😊</span>
+                            <span className="text-lg">😊</span>
                           </button>
                           <button className="text-blue-600 hover:text-blue-700">
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -198,23 +159,65 @@ export default async function Home() {
                           </button>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
 
-              {/* Latest Podcast Badge */}
-              <div className="mt-4 text-right">
-                <span className="bg-yellow-400 text-black px-4 py-2 rounded-lg font-bold text-sm">
-                  Latest Podcast
-                </span>
-              </div>
+              {/* Recently Added Blogs Section */}
+              <section>
+                <h2 className="text-2xl font-bold text-gray-900 hindi-text mb-6 border-b-2 border-red-600 pb-2 inline-block">
+                  हाल ही में जोड़े गए ब्लॉग
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {newsData.slice(3, 7).map((post) => (
+                    <article key={post.id} className="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="flex">
+                        <img
+                          src={post.image}
+                          alt={post.title}
+                          className="w-32 h-24 object-cover flex-shrink-0"
+                        />
+                        <div className="p-4 flex-1">
+                          <h3 className="font-semibold text-gray-900 hindi-text line-clamp-2 mb-2 text-sm">
+                            {post.title}
+                          </h3>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+                              {post.category}
+                            </span>
+                            <span className="text-gray-500 text-xs">{post.publishedAt}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <button className="text-yellow-500 hover:text-yellow-600">
+                              <span className="text-sm">😊</span>
+                            </button>
+                            <button className="text-blue-600 hover:text-blue-700">
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                              </svg>
+                            </button>
+                            <button className="text-gray-600 hover:text-gray-700">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+
             </div>
 
-            {/* Right Advertisement */}
+            {/* Right Vertical Advertisement */}
             <div className="col-span-1 hidden lg:block">
-              <div className="bg-gray-300 h-full min-h-[600px] flex items-center justify-center text-gray-600 text-xs font-bold transform rotate-90 border">
-                ADVERTISEMENT
+              <div className="h-full min-h-[800px] bg-gray-200 border flex items-center justify-center">
+                <div className="transform rotate-90 text-gray-600 font-bold text-sm whitespace-nowrap advertisement-text">
+                  ADVERTISEMENT
+                </div>
               </div>
             </div>
           </div>

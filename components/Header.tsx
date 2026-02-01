@@ -18,32 +18,18 @@ export default function Header() {
 
   return (
     <>
-      {/* Top Bar */}
-      <div className="bg-red-600 text-white py-2">
-        <div className="container mx-auto px-4 flex justify-between items-center text-sm">
-          <div className="flex items-center space-x-4">
-            <span>🇮🇳 देश दुनिया खेल मनोरंजन</span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <span>12:25:56 सोमवार</span>
-            <div className="flex space-x-2">
-              <span className="bg-yellow-500 text-black px-2 py-1 rounded text-xs">ND vs NZ Live</span>
-              <span className="bg-yellow-500 text-black px-2 py-1 rounded text-xs">UP Board Result</span>
-              <span className="bg-yellow-500 text-black px-2 py-1 rounded text-xs">Gold Price Today</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Advertisement Header Panel */}
-      <div className="bg-gray-100 border-b">
+      {/* White Header with Logo and Advertisement */}
+      <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
+            {/* Logo */}
             <div className="bg-red-600 text-white px-4 py-2 font-bold text-2xl">
               भारत<br />FIRST
             </div>
+            
+            {/* Advertisement Banner */}
             <div className="flex-1 mx-8">
-              <div className="bg-gray-300 h-20 flex items-center justify-center text-gray-600 text-lg font-bold border">
+              <div className="bg-gray-300 h-20 flex items-center justify-center text-gray-600 text-lg font-bold border advertisement-text">
                 ADVERTISEMENT
               </div>
             </div>
@@ -51,44 +37,44 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Main Navigation */}
-      <nav className="bg-white shadow-md sticky top-0 z-50">
+      {/* Thin Header with Profile and Categories */}
+      <div className="bg-white border-b shadow-sm">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between py-3">
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-8">
+          <div className="flex items-center justify-between py-2">
+            {/* Categories Navigation */}
+            <nav className="flex items-center space-x-6">
               {navItems.map((item) => (
                 <a
                   key={item.name}
                   href={item.href}
-                  className="text-gray-700 hover:text-red-600 font-medium transition-colors duration-200 hindi-text"
+                  className="text-gray-700 hover:text-red-600 font-medium text-sm transition-colors duration-200 hindi-text"
                 >
                   {item.name}
                 </a>
               ))}
-            </div>
+            </nav>
 
-            {/* Right Side Icons */}
-            <div className="flex items-center space-x-4">
-              <button className="p-2 hover:bg-gray-100 rounded-full">
-                <Search className="w-5 h-5 text-gray-600" />
+            {/* Profile Icons */}
+            <div className="flex items-center space-x-3">
+              <button className="p-1 hover:bg-gray-100 rounded-full">
+                <Search className="w-4 h-4 text-gray-600" />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full">
-                <Bell className="w-5 h-5 text-gray-600" />
+              <button className="p-1 hover:bg-gray-100 rounded-full">
+                <Bell className="w-4 h-4 text-gray-600" />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full">
-                <User className="w-5 h-5 text-gray-600" />
+              <button className="p-1 hover:bg-gray-100 rounded-full">
+                <User className="w-4 h-4 text-gray-600" />
               </button>
               
               {/* Mobile Menu Button */}
               <button
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-full"
+                className="lg:hidden p-1 hover:bg-gray-100 rounded-full"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
                 {isMenuOpen ? (
-                  <X className="w-6 h-6 text-gray-600" />
+                  <X className="w-5 h-5 text-gray-600" />
                 ) : (
-                  <Menu className="w-6 h-6 text-gray-600" />
+                  <Menu className="w-5 h-5 text-gray-600" />
                 )}
               </button>
             </div>
@@ -96,13 +82,13 @@ export default function Header() {
 
           {/* Mobile Navigation */}
           {isMenuOpen && (
-            <div className="lg:hidden border-t border-gray-200 py-4">
-              <nav className="flex flex-col space-y-4">
+            <div className="lg:hidden border-t border-gray-200 py-3">
+              <nav className="flex flex-col space-y-2">
                 {navItems.map((item) => (
                   <a
                     key={item.name}
                     href={item.href}
-                    className="text-gray-700 hover:text-red-600 font-medium transition-colors duration-200 hindi-text"
+                    className="text-gray-700 hover:text-red-600 font-medium text-sm transition-colors duration-200 hindi-text py-1"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
@@ -112,7 +98,7 @@ export default function Header() {
             </div>
           )}
         </div>
-      </nav>
+      </div>
     </>
   )
 }
