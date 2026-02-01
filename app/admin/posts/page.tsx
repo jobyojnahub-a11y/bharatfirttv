@@ -27,7 +27,9 @@ export default function PostsPage() {
     if (editingPost) {
       // Update post
       const updatedPost = mockAPI.updatePost(editingPost.id, formData)
-      setPosts(posts.map(p => p.id === editingPost.id ? updatedPost : p))
+      if (updatedPost) {
+        setPosts(posts.map(p => p.id === editingPost.id ? updatedPost : p))
+      }
       setEditingPost(null)
     } else {
       // Create new post
