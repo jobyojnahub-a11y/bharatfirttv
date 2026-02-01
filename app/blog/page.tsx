@@ -1,7 +1,7 @@
 import Header from '@/components/Header'
 import Link from 'next/link'
 import BlogStatus from '@/components/BlogStatus'
-import { fetchWordPressPosts, getFeaturedImage, getPostCategories, formatDate, cleanHtmlContent, getPostAuthor } from '@/lib/wordpress'
+import { fetchWordPressPosts, getFeaturedImageSync, getPostCategories, formatDate, cleanHtmlContent, getPostAuthor } from '@/lib/wordpress'
 
 export default async function BlogPage() {
   // Fetch all WordPress posts for blog page
@@ -13,7 +13,7 @@ export default async function BlogPage() {
         id: post.id,
         title: post.title.rendered,
         excerpt: cleanHtmlContent(post.excerpt.rendered),
-        image: getFeaturedImage(post),
+        image: getFeaturedImageSync(post),
         category: getPostCategories(post)[0] || 'सामान्य',
         publishedAt: formatDate(post.date),
         author: getPostAuthor(post),

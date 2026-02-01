@@ -13,7 +13,8 @@ export interface ImageGenerationResponse {
 }
 
 export async function generateImage(request: ImageGenerationRequest): Promise<ImageGenerationResponse> {
-  const apiKey = process.env.OPENAI_API_KEY
+  // API key will be set via environment variable on VPS
+  const apiKey = process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY
 
   if (!apiKey) {
     console.warn('OpenAI API key not found. Image generation disabled.')
