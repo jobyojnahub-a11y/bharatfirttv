@@ -107,16 +107,16 @@ export default async function Home() {
             </div>
 
             {/* Main Content Area */}
-            <div className="col-span-12 lg:col-span-10 space-y-8">
+            <div className="col-span-12 lg:col-span-8 space-y-8">
               
               {/* Popular Blogs Section */}
               <section>
-                <h2 className="text-2xl font-bold text-gray-900 hindi-text mb-6 border-b-2 border-red-600 pb-2 inline-block">
+                <h2 className="text-2xl font-bold text-gray-900 hindi-text mb-6 border-b-2 border-primary-red pb-2 inline-block">
                   लोकप्रिय ब्लॉग
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {newsData.slice(0, 3).map((post) => (
-                    <article key={post.id} className="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                    <article key={post.id} className="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = `/blog/${post.slug}`}>
                       <div className="relative h-48">
                         <img
                           src={post.image}
@@ -124,7 +124,7 @@ export default async function Home() {
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute top-3 left-3">
-                          <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
+                          <span className="bg-primary-red text-white px-2 py-1 rounded text-xs font-medium">
                             {post.category}
                           </span>
                         </div>
@@ -133,6 +133,9 @@ export default async function Home() {
                         <h3 className="font-bold text-gray-900 hindi-text mb-3 line-clamp-2 leading-tight">
                           {post.title}
                         </h3>
+                        <p className="text-gray-600 text-sm mb-3 line-clamp-2 hindi-text">
+                          {post.excerpt.substring(0, 100)}...
+                        </p>
                         <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
                           <span>{post.category}</span>
                           <span>⭐</span>
@@ -166,12 +169,12 @@ export default async function Home() {
 
               {/* Recently Added Blogs Section */}
               <section>
-                <h2 className="text-2xl font-bold text-gray-900 hindi-text mb-6 border-b-2 border-red-600 pb-2 inline-block">
+                <h2 className="text-2xl font-bold text-gray-900 hindi-text mb-6 border-b-2 border-primary-red pb-2 inline-block">
                   हाल ही में जोड़े गए ब्लॉग
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {newsData.slice(3, 7).map((post) => (
-                    <article key={post.id} className="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                    <article key={post.id} className="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = `/blog/${post.slug}`}>
                       <div className="flex">
                         <img
                           src={post.image}
@@ -210,6 +213,47 @@ export default async function Home() {
                 </div>
               </section>
 
+            </div>
+
+            {/* Right Sidebar */}
+            <div className="col-span-12 lg:col-span-2 space-y-6">
+              {/* आज की ताज़ा खबरें Section */}
+              <div className="bg-white border rounded-lg overflow-hidden">
+                <div className="bg-primary-red text-white p-3">
+                  <h3 className="font-bold hindi-text">आज की ताज़ा खबरें</h3>
+                </div>
+                <div className="p-3 space-y-3">
+                  {newsData.slice(0, 4).map((news) => (
+                    <div key={news.id} className="border-b border-gray-100 pb-2 last:border-b-0 cursor-pointer hover:bg-gray-50 p-2 rounded" onClick={() => window.location.href = `/blog/${news.slug}`}>
+                      <h4 className="text-sm font-semibold hindi-text line-clamp-2 mb-1">
+                        {news.title}
+                      </h4>
+                      <span className="text-xs text-gray-500">{news.publishedAt}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Latest Podcast Section */}
+              <div className="bg-white border rounded-lg overflow-hidden">
+                <div className="bg-golden text-black p-3">
+                  <h3 className="font-bold hindi-text">Latest Podcast</h3>
+                </div>
+                <div className="p-3">
+                  <div className="bg-light-golden p-4 rounded-lg text-center">
+                    <div className="w-16 h-16 bg-golden rounded-full mx-auto mb-3 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-black" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </div>
+                    <h4 className="font-bold hindi-text mb-2">आज का पॉडकास्ट</h4>
+                    <p className="text-sm text-gray-600 hindi-text">नवीनतम समाचार और विश्लेषण</p>
+                    <button className="mt-3 bg-primary-red text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90">
+                      सुनें
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Right Vertical Advertisement */}

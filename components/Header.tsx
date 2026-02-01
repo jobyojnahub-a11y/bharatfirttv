@@ -23,7 +23,7 @@ export default function Header() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <div className="bg-red-600 text-white px-4 py-2 font-bold text-2xl">
+            <div className="bg-primary-red text-white px-4 py-2 font-bold text-2xl">
               भारत<br />FIRST
             </div>
             
@@ -47,7 +47,7 @@ export default function Header() {
                 <a
                   key={item.name}
                   href={item.href}
-                  className="text-gray-700 hover:text-red-600 font-medium text-sm transition-colors duration-200 hindi-text"
+                  className="text-gray-700 hover:text-primary-red font-medium text-sm transition-colors duration-200 hindi-text"
                 >
                   {item.name}
                 </a>
@@ -88,7 +88,7 @@ export default function Header() {
                   <a
                     key={item.name}
                     href={item.href}
-                    className="text-gray-700 hover:text-red-600 font-medium text-sm transition-colors duration-200 hindi-text py-1"
+                    className="text-gray-700 hover:text-primary-red font-medium text-sm transition-colors duration-200 hindi-text py-1"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}

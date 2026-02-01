@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import Header from '@/components/Header'
 import { fetchWordPressPostBySlug, getFeaturedImage, getPostCategories, formatDate, cleanHtmlContent, getPostAuthor } from '@/lib/wordpress'
 import Link from 'next/link'
-import { Calendar, User, MessageCircle, Share2, Heart, Bookmark } from 'lucide-react'
+import { Calendar, User, MessageCircle, Share2, Heart, Bookmark, ThumbsUp, ThumbsDown } from 'lucide-react'
 
 interface BlogPostPageProps {
   params: {
@@ -31,9 +31,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-3">
           <nav className="flex items-center space-x-2 text-sm">
-            <Link href="/" className="text-blue-600 hover:text-blue-800">होम</Link>
+            <Link href="/" className="text-primary-red hover:underline">होम</Link>
             <span className="text-gray-400">/</span>
-            <Link href="/blog" className="text-blue-600 hover:text-blue-800">ब्लॉग</Link>
+            <Link href="/blog" className="text-primary-red hover:underline">ब्लॉग</Link>
             <span className="text-gray-400">/</span>
             <span className="text-gray-600 truncate">{post.title.rendered}</span>
           </nav>
@@ -45,7 +45,25 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           {/* Main Article */}
           <article className="col-span-12 lg:col-span-8">
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-              {/* Featured Image */}
+              
+              {/* Blog Title in Red */}
+              <div className="bg-primary-red text-white p-6">
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {categories.map((category, index) => (
+                    <span
+                      key={index}
+                      className="bg-white bg-opacity-20 text-white px-3 py-1 rounded-full text-sm font-medium"
+                    >
+                      {category}
+                    </span>
+                  ))}
+                </div>
+                <h1 className="text-3xl md:text-4xl font-bold hindi-text leading-tight">
+                  {post.title.rendered}
+                </h1>
+              </div>
+
+              {/* Featured Image Banner */}
               {featuredImage && (
                 <div className="relative h-96 overflow-hidden">
                   <img
@@ -53,28 +71,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                     alt={post.title.rendered}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                 </div>
               )}
 
               <div className="p-8">
-                {/* Categories */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {categories.map((category, index) => (
-                    <span
-                      key={index}
-                      className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium"
-                    >
-                      {category}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Title */}
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 hindi-text leading-tight mb-6">
-                  {post.title.rendered}
-                </h1>
-
                 {/* Meta Information */}
                 <div className="flex flex-wrap items-center gap-6 mb-8 pb-6 border-b border-gray-200">
                   <div className="flex items-center gap-2">
@@ -91,26 +91,69 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   </div>
                 </div>
 
-                {/* Social Actions */}
-                <div className="flex items-center justify-between mb-8">
+                {/* Blog Content Preview */}
+                <div className="prose prose-lg max-w-none hindi-text mb-8">
+                  <p className="text-gray-600 text-lg leading-relaxed">
+                    {post.excerpt ? cleanHtmlContent(post.excerpt.rendered).substring(0, 300) + '...' : content.substring(0, 300) + '...'}
+                  </p>
+                </div>
+
+                {/* Like/Dislike and Comment Buttons */}
+                <div className="flex items-center justify-between mb-8 p-6 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors">
-                      <Heart className="w-5 h-5" />
-                      <span>पसंद करें</span>
+                    <button 
+                      className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                      onClick={() => alert('कृपया पहले लॉगिन करें')}
+                    >
+                      <ThumbsUp className="w-5 h-5" />
+                      <span className="font-medium">लाइक करें</span>
                     </button>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
-                      <Share2 className="w-5 h-5" />
+                    <button 
+                      className="flex items-center gap-2 px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                      onClick={() => alert('कृपया पहले लॉगिन करें')}
+                    >
+                      <ThumbsDown className="w-5 h-5" />
+                      <span className="font-medium">डिसलाइक करें</span>
+                    </button>
+                    <button 
+                      className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                      onClick={() => alert('कृपया पहले लॉगिन करें')}
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                      <span className="font-medium">कमेंट करें</span>
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                      <Share2 className="w-4 h-4" />
                       <span>शेयर करें</span>
                     </button>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
-                      <Bookmark className="w-5 h-5" />
+                    <button className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                      <Bookmark className="w-4 h-4" />
                       <span>सेव करें</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Content */}
-                <div className="prose prose-lg max-w-none hindi-text">
+                {/* Login Required Message */}
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="ml-3">
+                      <p className="text-sm text-yellow-700 hindi-text">
+                        <strong>ध्यान दें:</strong> लाइक, डिसलाइक और कमेंट करने के लिए कृपया लॉगिन करें।
+                      </p>
+                      <button 
+                        className="mt-3 bg-primary-red text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90"
+                        onClick={() => alert('लॉगिन सिस्टम जल्द ही आएगा!')}
+                      >
+                        लॉगिन करें
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Full Content */}
+                <div className="mt-8 prose prose-lg max-w-none hindi-text">
                   <div dangerouslySetInnerHTML={{ __html: content }} />
                 </div>
 
@@ -118,9 +161,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <div className="mt-8 pt-6 border-t border-gray-200">
                   <h3 className="text-lg font-semibold mb-3 hindi-text">टैग्स:</h3>
                   <div className="flex flex-wrap gap-2">
-                    {['राजनीति', 'समाचार', 'भारत', 'अंतर्राष्ट्रीय'].map((tag) => (
+                    {categories.map((tag, index) => (
                       <span
-                        key={tag}
+                        key={index}
                         className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200 cursor-pointer"
                       >
                         #{tag}
@@ -130,75 +173,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 </div>
               </div>
             </div>
-
-            {/* Comments Section */}
-            <div className="bg-white rounded-xl shadow-lg mt-8 p-8">
-              <h3 className="text-2xl font-bold mb-6 hindi-text">टिप्पणियां (12)</h3>
-              
-              {/* Comment Form */}
-              <div className="mb-8">
-                <h4 className="text-lg font-semibold mb-4 hindi-text">अपनी राय दें</h4>
-                <form className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      placeholder="आपका नाम"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <input
-                      type="email"
-                      placeholder="ईमेल पता"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <textarea
-                    rows={4}
-                    placeholder="अपनी टिप्पणी लिखें..."
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  ></textarea>
-                  <button
-                    type="submit"
-                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                  >
-                    टिप्पणी पोस्ट करें
-                  </button>
-                </form>
-              </div>
-
-              {/* Sample Comments */}
-              <div className="space-y-6">
-                {[1, 2, 3].map((comment) => (
-                  <div key={comment} className="border-l-4 border-blue-500 pl-6 py-4">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-gray-600" />
-                      </div>
-                      <div>
-                        <h5 className="font-semibold text-gray-900">राहुल शर्मा</h5>
-                        <p className="text-sm text-gray-500">2 घंटे पहले</p>
-                      </div>
-                    </div>
-                    <p className="text-gray-700 hindi-text">
-                      बहुत ही अच्छा लेख है। इस विषय पर और जानकारी चाहिए। धन्यवाद!
-                    </p>
-                    <div className="flex items-center gap-4 mt-3">
-                      <button className="text-sm text-blue-600 hover:text-blue-800">जवाब दें</button>
-                      <button className="text-sm text-gray-600 hover:text-gray-800">👍 5</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </article>
 
           {/* Sidebar */}
           <aside className="col-span-12 lg:col-span-4">
             {/* Related Posts */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-              <h3 className="text-xl font-bold mb-4 hindi-text">संबंधित समाचार</h3>
+              <h3 className="text-xl font-bold mb-4 hindi-text text-primary-red border-b-2 border-primary-red pb-2">संबंधित समाचार</h3>
               <div className="space-y-4">
                 {[1, 2, 3, 4].map((item) => (
-                  <div key={item} className="flex gap-3">
+                  <div key={item} className="flex gap-3 hover:bg-gray-50 p-2 rounded cursor-pointer">
                     <img
                       src={`https://images.unsplash.com/photo-${1500000000000 + item}?w=80&h=60&fit=crop`}
                       alt="Related news"
@@ -216,9 +200,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </div>
 
             {/* Newsletter */}
-            <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-xl p-6">
+            <div className="bg-gradient-to-br from-primary-red to-red-800 text-white rounded-xl p-6">
               <h3 className="text-xl font-bold mb-3 hindi-text">न्यूज़लेटर</h3>
-              <p className="text-blue-100 mb-4 hindi-text">
+              <p className="text-red-100 mb-4 hindi-text">
                 रोज़ाना की ताज़ा खबरें सीधे अपने ईमेल में पाएं
               </p>
               <form className="space-y-3">
@@ -229,7 +213,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 />
                 <button
                   type="submit"
-                  className="w-full bg-white text-blue-600 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                  className="w-full bg-white text-primary-red py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
                 >
                   सब्सक्राइब करें
                 </button>
@@ -244,7 +228,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <div className="bg-red-600 text-white px-4 py-2 font-bold text-xl inline-block mb-4">
+              <div className="bg-primary-red text-white px-4 py-2 font-bold text-xl inline-block mb-4">
                 भारत<br />FIRST
               </div>
               <p className="text-gray-400 hindi-text">

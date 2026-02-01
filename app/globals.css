@@ -9,6 +9,9 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 255, 255, 255;
   --background-end-rgb: 255, 255, 255;
+  --primary-red: 212, 17, 15;
+  --golden: 255, 215, 0;
+  --light-golden: 255, 248, 220;
 }
 
 * {
@@ -70,4 +73,30 @@ body {
 .advertisement-text {
   font-family: 'Mukta', sans-serif;
   font-weight: 600;
+}
+
+/* Primary red color utility */
+.bg-primary-red {
+  background-color: rgb(var(--primary-red));
+}
+
+.text-primary-red {
+  color: rgb(var(--primary-red));
+}
+
+.border-primary-red {
+  border-color: rgb(var(--primary-red));
+}
+
+/* Golden color utilities */
+.bg-golden {
+  background-color: rgb(var(--golden));
+}
+
+.bg-light-golden {
+  background-color: rgb(var(--light-golden));
+}
+
+.text-golden {
+  color: rgb(var(--golden));
 }
