@@ -1,6 +1,11 @@
+'use client'
+
 import { notFound } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import { fetchWordPressPostBySlug, getFeaturedImage, getPostCategories, formatDate, cleanHtmlContent, getPostAuthor } from '@/lib/wordpress'
+import { useAuth } from '@/contexts/AuthContext'
+import AuthModal from '@/components/AuthModal'
 import Link from 'next/link'
 import { Calendar, User, MessageCircle, Share2, Heart, Bookmark, ThumbsUp, ThumbsDown } from 'lucide-react'
 
@@ -10,9 +15,74 @@ interface BlogPostPageProps {
   }
 }
 
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const post = await fetchWordPressPostBySlug(params.slug)
-  
+export default function BlogPostPage({ params }: BlogPostPageProps) {
+  const [post, setPost] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const { isLoggedIn } = useAuth()
+
+  useEffect(() => {
+    async function loadPost() {
+      try {
+        const postData = await fetchWordPressPostBySlug(params.slug)
+        if (!postData) {
+          notFound()
+        }
+        setPost(postData)
+      } catch (error) {
+        console.error('Error loading post:', error)
+        notFound()
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadPost()
+  }, [params.slug])
+
+  const handleAuthRequired = () => {
+    if (!isLoggedIn) {
+      setShowAuthModal(true)
+      return false
+    }
+    return true
+  }
+
+  const handleLike = () => {
+    if (handleAuthRequired()) {
+      // Add like functionality here
+      alert('पोस्ट को लाइक कर दिया गया!')
+    }
+  }
+
+  const handleDislike = () => {
+    if (handleAuthRequired()) {
+      // Add dislike functionality here
+      alert('पोस्ट को डिसलाइक कर दिया गया!')
+    }
+  }
+
+  const handleComment = () => {
+    if (handleAuthRequired()) {
+      // Add comment functionality here
+      alert('कमेंट सेक्शन जल्द ही आएगा!')
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-red mx-auto"></div>
+            <p className="mt-4 text-gray-600 hindi-text">लोड हो रहा है...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (!post) {
     notFound()
   }
@@ -102,22 +172,22 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <div className="flex items-center justify-between mb-8 p-6 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-4">
                     <button 
+                      onClick={handleLike}
                       className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                      onClick={() => alert('कृपया पहले लॉगिन करें')}
                     >
                       <ThumbsUp className="w-5 h-5" />
                       <span className="font-medium">लाइक करें</span>
                     </button>
                     <button 
+                      onClick={handleDislike}
                       className="flex items-center gap-2 px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                      onClick={() => alert('कृपया पहले लॉगिन करें')}
                     >
                       <ThumbsDown className="w-5 h-5" />
                       <span className="font-medium">डिसलाइक करें</span>
                     </button>
                     <button 
+                      onClick={handleComment}
                       className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                      onClick={() => alert('कृपया पहले लॉगिन करें')}
                     >
                       <MessageCircle className="w-5 h-5" />
                       <span className="font-medium">कमेंट करें</span>
@@ -135,22 +205,24 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   </div>
                 </div>
 
-                {/* Login Required Message */}
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
-                  <div className="flex items-center">
-                    <div className="ml-3">
-                      <p className="text-sm text-yellow-700 hindi-text">
-                        <strong>ध्यान दें:</strong> लाइक, डिसलाइक और कमेंट करने के लिए कृपया लॉगिन करें।
-                      </p>
-                      <button 
-                        className="mt-3 bg-primary-red text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90"
-                        onClick={() => alert('लॉगिन सिस्टम जल्द ही आएगा!')}
-                      >
-                        लॉगिन करें
-                      </button>
+                {/* Login Status Message */}
+                {!isLoggedIn && (
+                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg mb-8">
+                    <div className="flex items-center">
+                      <div className="ml-3">
+                        <p className="text-sm text-yellow-700 hindi-text">
+                          <strong>ध्यान दें:</strong> लाइक, डिसलाइक और कमेंट करने के लिए कृपया लॉगिन करें।
+                        </p>
+                        <button 
+                          onClick={() => setShowAuthModal(true)}
+                          className="mt-3 bg-primary-red text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90"
+                        >
+                          लॉगिन करें
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Full Content */}
                 <div className="mt-8 prose prose-lg max-w-none hindi-text">
@@ -222,6 +294,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </aside>
         </div>
       </main>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+      />
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12 mt-16">

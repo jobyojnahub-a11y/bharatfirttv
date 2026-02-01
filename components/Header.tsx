@@ -1,10 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { Menu, X, Search, Bell, User } from 'lucide-react'
+import { Menu, X, Search, Bell, User, LogOut } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import AuthModal from './AuthModal'
+import Link from 'next/link'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const { user, logout, isLoggedIn, isAdmin } = useAuth()
 
   const navItems = [
     { name: 'होम', href: '/' },
@@ -23,9 +28,11 @@ export default function Header() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <div className="bg-primary-red text-white px-4 py-2 font-bold text-2xl">
-              भारत<br />FIRST
-            </div>
+            <Link href="/">
+              <div className="bg-primary-red text-white px-4 py-2 font-bold text-2xl cursor-pointer hover:opacity-90">
+                भारत<br />FIRST
+              </div>
+            </Link>
             
             {/* Advertisement Banner */}
             <div className="flex-1 mx-8">
@@ -44,13 +51,13 @@ export default function Header() {
             {/* Categories Navigation */}
             <nav className="flex items-center space-x-6">
               {navItems.map((item) => (
-                <a
+                <Link
                   key={item.name}
                   href={item.href}
                   className="text-gray-700 hover:text-primary-red font-medium text-sm transition-colors duration-200 hindi-text"
                 >
                   {item.name}
-                </a>
+                </Link>
               ))}
             </nav>
 
@@ -62,9 +69,41 @@ export default function Header() {
               <button className="p-1 hover:bg-gray-100 rounded-full">
                 <Bell className="w-4 h-4 text-gray-600" />
               </button>
-              <button className="p-1 hover:bg-gray-100 rounded-full">
-                <User className="w-4 h-4 text-gray-600" />
-              </button>
+              
+              {/* User Authentication */}
+              {isLoggedIn ? (
+                <div className="flex items-center space-x-2">
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      className="text-xs bg-primary-red text-white px-2 py-1 rounded hindi-text hover:opacity-90"
+                    >
+                      एडमिन
+                    </Link>
+                  )}
+                  <div className="flex items-center space-x-2">
+                    <div className="w-6 h-6 bg-primary-red rounded-full flex items-center justify-center text-white font-bold text-xs">
+                      {user?.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="text-xs text-gray-700">{user?.name}</span>
+                    <button
+                      onClick={logout}
+                      className="p-1 hover:bg-gray-100 rounded-full"
+                      title="लॉगआउट"
+                    >
+                      <LogOut className="w-4 h-4 text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="flex items-center space-x-1 text-primary-red hover:bg-red-50 px-2 py-1 rounded text-sm font-medium hindi-text"
+                >
+                  <User className="w-4 h-4" />
+                  <span>लॉगिन</span>
+                </button>
+              )}
               
               {/* Mobile Menu Button */}
               <button
@@ -85,20 +124,26 @@ export default function Header() {
             <div className="lg:hidden border-t border-gray-200 py-3">
               <nav className="flex flex-col space-y-2">
                 {navItems.map((item) => (
-                  <a
+                  <Link
                     key={item.name}
                     href={item.href}
                     className="text-gray-700 hover:text-primary-red font-medium text-sm transition-colors duration-200 hindi-text py-1"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
-                  </a>
+                  </Link>
                 ))}
               </nav>
             </div>
           )}
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+      />
     </>
   )
 }
