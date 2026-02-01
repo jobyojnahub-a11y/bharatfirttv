@@ -1,3 +1,6 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import BreakingNews from '@/components/BreakingNews'
 import NewsCard from '@/components/NewsCard'
@@ -57,27 +60,65 @@ const fallbackNewsData = [
   }
 ]
 
-export default async function Home() {
-  // Fetch WordPress posts
-  const wordPressPosts = await fetchWordPressPosts(6)
-  
-  // Convert WordPress posts to our news format
-  const newsData = wordPressPosts.length > 0 
-    ? wordPressPosts.map((post, index) => ({
-        id: post.id,
-        title: post.title.rendered,
-        excerpt: cleanHtmlContent(post.excerpt.rendered),
-        image: getFeaturedImage(post),
-        category: getPostCategories(post)[0] || 'सामान्य',
-        publishedAt: formatDate(post.date),
-        isMainStory: index === 0,
-        slug: post.slug
-      }))
-    : fallbackNewsData.map((post, index) => ({
-        ...post,
-        isMainStory: index === 0,
-        slug: `fallback-${post.id}`
-      }))
+export default function Home() {
+  const [newsData, setNewsData] = useState<any[]>([])
+  const [wordPressPosts, setWordPressPosts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadPosts() {
+      try {
+        const posts = await fetchWordPressPosts(6)
+        setWordPressPosts(posts)
+        
+        // Convert WordPress posts to our news format
+        const convertedData = posts.length > 0 
+          ? posts.map((post, index) => ({
+              id: post.id,
+              title: post.title.rendered,
+              excerpt: cleanHtmlContent(post.excerpt.rendered),
+              image: getFeaturedImage(post),
+              category: getPostCategories(post)[0] || 'सामान्य',
+              publishedAt: formatDate(post.date),
+              isMainStory: index === 0,
+              slug: post.slug
+            }))
+          : fallbackNewsData.map((post, index) => ({
+              ...post,
+              isMainStory: index === 0,
+              slug: `fallback-${post.id}`
+            }))
+        
+        setNewsData(convertedData)
+      } catch (error) {
+        console.error('Error loading posts:', error)
+        setNewsData(fallbackNewsData.map((post, index) => ({
+          ...post,
+          isMainStory: index === 0,
+          slug: `fallback-${post.id}`
+        })))
+        setWordPressPosts([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadPosts()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-red mx-auto"></div>
+            <p className="mt-4 text-gray-600 hindi-text">लोड हो रहा है...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const mainStory = newsData[0]
   const sideStories = newsData.slice(1, 3)
@@ -97,170 +138,129 @@ export default async function Home() {
       <main className="bg-white">
         <div className="container mx-auto px-4 py-6">
           <div className="grid grid-cols-12 gap-6">
-            {/* Left Vertical Advertisement */}
-            <div className="col-span-1 hidden lg:block">
-              <div className="h-full min-h-[800px] bg-gray-200 border flex items-center justify-center">
-                <div className="transform -rotate-90 text-gray-600 font-bold text-sm whitespace-nowrap advertisement-text">
-                  ADVERTISEMENT
+            
+            {/* Left Content - Main Story + Side Stories */}
+            <div className="col-span-12 lg:col-span-8">
+              <div className="grid grid-cols-12 gap-4">
+                
+                {/* Main Story */}
+                <div className="col-span-12 md:col-span-8">
+                  {mainStory && (
+                    <NewsCard
+                      id={mainStory.id}
+                      title={mainStory.title}
+                      excerpt={mainStory.excerpt}
+                      image={mainStory.image}
+                      category={mainStory.category}
+                      publishedAt={mainStory.publishedAt}
+                      isMainStory={true}
+                      slug={mainStory.slug}
+                    />
+                  )}
+                </div>
+                
+                {/* Side Stories */}
+                <div className="col-span-12 md:col-span-4 space-y-4">
+                  {sideStories.map((story) => (
+                    <NewsCard
+                      key={story.id}
+                      id={story.id}
+                      title={story.title}
+                      excerpt={story.excerpt}
+                      image={story.image}
+                      category={story.category}
+                      publishedAt={story.publishedAt}
+                      isMainStory={false}
+                      slug={story.slug}
+                    />
+                  ))}
                 </div>
               </div>
-            </div>
-
-            {/* Main Content Area */}
-            <div className="col-span-12 lg:col-span-8 space-y-8">
               
-              {/* Popular Blogs Section */}
-              <section>
-                <h2 className="text-2xl font-bold text-gray-900 hindi-text mb-6 border-b-2 border-primary-red pb-2 inline-block">
-                  लोकप्रिय ब्लॉग
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {newsData.slice(0, 3).map((post) => (
-                    <article key={post.id} className="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = `/blog/${post.slug}`}>
-                      <div className="relative h-48">
-                        <img
-                          src={post.image}
-                          alt={post.title}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-3 left-3">
-                          <span className="bg-primary-red text-white px-2 py-1 rounded text-xs font-medium">
-                            {post.category}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-bold text-gray-900 hindi-text mb-3 line-clamp-2 leading-tight">
-                          {post.title}
-                        </h3>
-                        <p className="text-gray-600 text-sm mb-3 line-clamp-2 hindi-text">
-                          {post.excerpt.substring(0, 100)}...
-                        </p>
-                        <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
-                          <span>{post.category}</span>
-                          <span>⭐</span>
-                          <span>{post.publishedAt}</span>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <button className="text-yellow-500 hover:text-yellow-600">
-                            <span className="text-lg">😊</span>
-                          </button>
-                          <button className="text-blue-600 hover:text-blue-700">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
-                            </svg>
-                          </button>
-                          <button className="text-gray-600 hover:text-gray-700">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                            </svg>
-                          </button>
-                          <button className="text-gray-600 hover:text-gray-700">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-
-              {/* Recently Added Blogs Section */}
-              <section>
-                <h2 className="text-2xl font-bold text-gray-900 hindi-text mb-6 border-b-2 border-primary-red pb-2 inline-block">
-                  हाल ही में जोड़े गए ब्लॉग
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {newsData.slice(3, 7).map((post) => (
-                    <article key={post.id} className="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = `/blog/${post.slug}`}>
-                      <div className="flex">
-                        <img
-                          src={post.image}
-                          alt={post.title}
-                          className="w-32 h-24 object-cover flex-shrink-0"
-                        />
-                        <div className="p-4 flex-1">
-                          <h3 className="font-semibold text-gray-900 hindi-text line-clamp-2 mb-2 text-sm">
-                            {post.title}
-                          </h3>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
-                              {post.category}
-                            </span>
-                            <span className="text-gray-500 text-xs">{post.publishedAt}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <button className="text-yellow-500 hover:text-yellow-600">
-                              <span className="text-sm">😊</span>
-                            </button>
-                            <button className="text-blue-600 hover:text-blue-700">
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
-                              </svg>
-                            </button>
-                            <button className="text-gray-600 hover:text-gray-700">
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-
-            </div>
-
-            {/* Right Sidebar */}
-            <div className="col-span-12 lg:col-span-2 space-y-6">
-              {/* आज की ताज़ा खबरें Section */}
-              <div className="bg-white border rounded-lg overflow-hidden">
-                <div className="bg-primary-red text-white p-3">
-                  <h3 className="font-bold hindi-text">आज की ताज़ा खबरें</h3>
-                </div>
-                <div className="p-3 space-y-3">
-                  {newsData.slice(0, 4).map((news) => (
-                    <div key={news.id} className="border-b border-gray-100 pb-2 last:border-b-0 cursor-pointer hover:bg-gray-50 p-2 rounded" onClick={() => window.location.href = `/blog/${news.slug}`}>
-                      <h4 className="text-sm font-semibold hindi-text line-clamp-2 mb-1">
-                        {news.title}
-                      </h4>
-                      <span className="text-xs text-gray-500">{news.publishedAt}</span>
-                    </div>
-                  ))}
+              {/* Social Share Buttons */}
+              <div className="mt-6 flex items-center justify-center space-x-4 py-4 bg-gray-50 rounded-lg">
+                <span className="text-gray-600 hindi-text font-medium">हमें फॉलो करें:</span>
+                <div className="flex space-x-3">
+                  <button className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors hover-scale">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                    </svg>
+                  </button>
+                  <button className="bg-blue-800 text-white p-2 rounded-full hover:bg-blue-900 transition-colors hover-scale">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                  </button>
+                  <button className="bg-pink-500 text-white p-2 rounded-full hover:bg-pink-600 transition-colors hover-scale">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z"/>
+                    </svg>
+                  </button>
+                  <button className="bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors hover-scale">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
-
-              {/* Latest Podcast Section */}
-              <div className="bg-white border rounded-lg overflow-hidden">
-                <div className="bg-golden text-black p-3">
-                  <h3 className="font-bold hindi-text">Latest Podcast</h3>
+            </div>
+            
+            {/* Right Sidebar - Advertisements */}
+            <div className="col-span-12 lg:col-span-4">
+              <div className="space-y-6">
+                
+                {/* आज की ताज़ा खबरें */}
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                  <h3 className="text-xl font-bold mb-4 hindi-text text-primary-red border-b-2 border-primary-red pb-2">
+                    आज की ताज़ा खबरें
+                  </h3>
+                  <div className="space-y-4">
+                    {newsData.slice(3, 6).map((news) => (
+                      <div key={news.id} className="flex gap-3 hover:bg-gray-50 p-2 rounded cursor-pointer">
+                        <img
+                          src={news.image}
+                          alt={news.title}
+                          className="w-20 h-15 object-cover rounded"
+                        />
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold hindi-text line-clamp-2 mb-1">
+                            {news.title}
+                          </h4>
+                          <p className="text-xs text-gray-500">{news.publishedAt}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="p-3">
-                  <div className="bg-light-golden p-4 rounded-lg text-center">
-                    <div className="w-16 h-16 bg-golden rounded-full mx-auto mb-3 flex items-center justify-center">
-                      <svg className="w-8 h-8 text-black" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
-                    </div>
-                    <h4 className="font-bold hindi-text mb-2">आज का पॉडकास्ट</h4>
-                    <p className="text-sm text-gray-600 hindi-text">नवीनतम समाचार और विश्लेषण</p>
-                    <button className="mt-3 bg-primary-red text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90">
+
+                {/* Latest Podcast */}
+                <div className="bg-gradient-to-br from-primary-red to-red-800 text-white rounded-lg p-6">
+                  <h3 className="text-xl font-bold mb-3 hindi-text">Latest Podcast</h3>
+                  <div className="bg-white bg-opacity-20 rounded-lg p-4 mb-4">
+                    <h4 className="font-semibold mb-2 hindi-text">आज का पॉडकास्ट</h4>
+                    <p className="text-sm text-red-100 mb-3">
+                      नवीनतम समाचार और विश्लेषण के साथ आज के मुख्य मुद्दों पर चर्चा
+                    </p>
+                    <button className="bg-white text-primary-red px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors btn-animate">
                       सुनें
                     </button>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Right Vertical Advertisement */}
-            <div className="col-span-1 hidden lg:block">
-              <div className="h-full min-h-[800px] bg-gray-200 border flex items-center justify-center">
-                <div className="transform rotate-90 text-gray-600 font-bold text-sm whitespace-nowrap advertisement-text">
-                  ADVERTISEMENT
+                {/* Vertical Advertisement */}
+                <div className="bg-gray-300 h-96 flex flex-col items-center justify-center text-gray-600 text-center border rounded-lg">
+                  <div className="text-lg font-bold advertisement-text mb-2">
+                    ADVERTISEMENT
+                  </div>
+                  <div className="text-sm">(300x600)</div>
+                </div>
+                
+                {/* Another Vertical Advertisement */}
+                <div className="bg-gray-300 h-64 flex flex-col items-center justify-center text-gray-600 text-center border rounded-lg">
+                  <div className="text-lg font-bold advertisement-text mb-2">
+                    ADVERTISEMENT
+                  </div>
+                  <div className="text-sm">(300x250)</div>
                 </div>
               </div>
             </div>
@@ -268,12 +268,80 @@ export default async function Home() {
         </div>
       </main>
 
+      {/* Popular Blogs Section */}
+      <section className="bg-gray-50 py-12">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-8 hindi-text text-primary-red">
+            Popular Blogs
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {newsData.slice(0, 6).map((blog) => (
+              <div key={blog.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover-scale news-card">
+                <img
+                  src={blog.image}
+                  alt={blog.title}
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="bg-primary-red text-white px-3 py-1 rounded-full text-sm font-medium">
+                      {blog.category}
+                    </span>
+                    <span className="text-gray-500 text-sm">{blog.publishedAt}</span>
+                  </div>
+                  <h3 className="text-lg font-bold mb-3 hindi-text line-clamp-2">
+                    {blog.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm line-clamp-3 mb-4">
+                    {blog.excerpt}
+                  </p>
+                  <button className="text-primary-red font-semibold hover:underline">
+                    पूरा पढ़ें →
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Recently Added Blogs Section */}
+      <section className="bg-white py-12">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-8 hindi-text text-primary-red">
+            Recently Added Blogs
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {newsData.slice(2, 6).map((blog) => (
+              <div key={blog.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover-scale news-card">
+                <img
+                  src={blog.image}
+                  alt={blog.title}
+                  className="w-full h-32 object-cover"
+                />
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
+                      {blog.category}
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-bold mb-2 hindi-text line-clamp-2">
+                    {blog.title}
+                  </h3>
+                  <p className="text-gray-500 text-xs">{blog.publishedAt}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <div className="bg-primary-500 text-white px-4 py-2 font-bold text-xl inline-block mb-4">
+              <div className="bg-primary-red text-white px-4 py-2 font-bold text-xl inline-block mb-4">
                 भारत<br />FIRST
               </div>
               <p className="text-gray-400 hindi-text">
