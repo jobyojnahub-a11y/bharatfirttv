@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { Clock, MessageCircle, Share2, Bookmark } from 'lucide-react'
 
 interface NewsCardProps {
@@ -11,6 +12,7 @@ interface NewsCardProps {
   publishedAt: string
   readTime?: string
   isMainStory?: boolean
+  slug?: string
 }
 
 export default function NewsCard({
@@ -20,10 +22,11 @@ export default function NewsCard({
   category,
   publishedAt,
   readTime = '2 मिनट',
-  isMainStory = false
+  isMainStory = false,
+  slug
 }: NewsCardProps) {
-  return (
-    <article className={`news-card bg-white rounded-lg shadow-md overflow-hidden ${isMainStory ? 'col-span-2 row-span-2' : ''}`}>
+  const cardContent = (
+    <>
       <div className="relative">
         <Image
           src={image}
@@ -72,6 +75,22 @@ export default function NewsCard({
           </div>
         </div>
       </div>
+    </>
+  )
+
+  if (slug) {
+    return (
+      <Link href={`/blog/${slug}`}>
+        <article className={`news-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer ${isMainStory ? 'col-span-2 row-span-2' : ''}`}>
+          {cardContent}
+        </article>
+      </Link>
+    )
+  }
+
+  return (
+    <article className={`news-card bg-white rounded-lg shadow-md overflow-hidden ${isMainStory ? 'col-span-2 row-span-2' : ''}`}>
+      {cardContent}
     </article>
   )
 }

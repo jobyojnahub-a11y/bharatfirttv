@@ -70,9 +70,17 @@ export default async function Home() {
         image: getFeaturedImage(post),
         category: getPostCategories(post)[0] || 'सामान्य',
         publishedAt: formatDate(post.date),
-        isMainStory: index === 0
+        isMainStory: index === 0,
+        slug: post.slug
       }))
-    : fallbackNewsData
+    : fallbackNewsData.map((post, index) => ({
+        ...post,
+        isMainStory: index === 0,
+        slug: `fallback-${post.id}`
+      }))
+
+  const mainStory = newsData[0]
+  const sideStories = newsData.slice(1, 3)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -85,70 +93,130 @@ export default async function Home() {
         isWordPressConnected={wordPressPosts.length > 0} 
       />
       
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {/* Latest News Section */}
-        <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <h2 className="text-2xl font-bold text-gray-900 hindi-text">आज की ताजा खबरें</h2>
-              <div className="ml-4 bg-accent-500 text-white px-3 py-1 rounded-full text-sm">
-                {wordPressPosts.length > 0 ? `${wordPressPosts.length} नई खबरें` : 'Latest Podcast'}
-              </div>
+      {/* Main Content - Exact Screenshot Layout */}
+      <main className="container mx-auto px-4 py-6">
+        <div className="grid grid-cols-12 gap-6">
+          {/* Left Advertisement */}
+          <div className="col-span-2 hidden lg:block">
+            <div className="bg-gray-200 h-96 flex items-center justify-center text-gray-500 text-xs transform -rotate-90">
+              ADVERTISEMENT
             </div>
-            <a 
-              href="https://blog.bharatfirsttv.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-sm text-primary-600 hover:text-primary-700 underline"
-            >
-              Blog पर जाएं →
-            </a>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {newsData.map((news, index) => (
-              <NewsCard
-                key={news.id}
-                title={news.title}
-                excerpt={news.excerpt}
-                image={news.image}
-                category={news.category}
-                publishedAt={news.publishedAt}
-                isMainStory={index === 0}
-              />
-            ))}
-          </div>
-        </section>
 
-        {/* Trending Section */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 hindi-text">ट्रेंडिंग न्यूज</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {newsData.slice(1, 5).map((news) => (
-              <div key={news.id} className="bg-white rounded-lg shadow-md overflow-hidden news-card">
-                <div className="relative h-32">
-                  <img
-                    src={news.image}
-                    alt={news.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute bottom-2 left-2">
-                    <span className="bg-primary-500 text-white px-2 py-1 rounded text-xs">
-                      {news.category}
-                    </span>
+          {/* Main Content Area */}
+          <div className="col-span-12 lg:col-span-8">
+            <div className="grid grid-cols-12 gap-4">
+              {/* Main Story - Left Side */}
+              <div className="col-span-12 md:col-span-8">
+                <div className="bg-white rounded-lg overflow-hidden shadow-lg">
+                  <div className="relative">
+                    <img
+                      src={mainStory.image}
+                      alt={mainStory.title}
+                      className="w-full h-64 object-cover"
+                    />
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <h1 className="text-white text-xl font-bold hindi-text leading-tight bg-black bg-opacity-50 p-3 rounded">
+                        {mainStory.title}
+                      </h1>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-gray-700 hindi-text text-sm leading-relaxed">
+                      {mainStory.excerpt}
+                    </p>
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="flex items-center space-x-4">
+                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                          {mainStory.category}
+                        </span>
+                        <span className="text-gray-500 text-xs">{mainStory.publishedAt}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button className="p-2 hover:bg-gray-100 rounded-full">
+                          😊
+                        </button>
+                        <button className="p-2 hover:bg-gray-100 rounded-full">
+                          <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                          </svg>
+                        </button>
+                        <button className="p-2 hover:bg-gray-100 rounded-full">
+                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                          </svg>
+                        </button>
+                        <button className="p-2 hover:bg-gray-100 rounded-full">
+                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-sm text-gray-900 hindi-text line-clamp-3">
-                    {news.title}
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-2">{news.publishedAt}</p>
+              </div>
+
+              {/* Side Stories - Right Side */}
+              <div className="col-span-12 md:col-span-4 space-y-4">
+                {sideStories.map((story) => (
+                  <div key={story.id} className="bg-white rounded-lg overflow-hidden shadow-lg">
+                    <div className="flex">
+                      <img
+                        src={story.image}
+                        alt={story.title}
+                        className="w-24 h-20 object-cover"
+                      />
+                      <div className="p-3 flex-1">
+                        <h3 className="text-sm font-semibold hindi-text line-clamp-2 mb-2">
+                          {story.title}
+                        </h3>
+                        <div className="flex items-center justify-between">
+                          <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+                            {story.category}
+                          </span>
+                          <span className="text-gray-500 text-xs">{story.publishedAt}</span>
+                        </div>
+                        <div className="flex items-center space-x-2 mt-2">
+                          <button className="p-1 hover:bg-gray-100 rounded-full">
+                            😊
+                          </button>
+                          <button className="p-1 hover:bg-gray-100 rounded-full">
+                            <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                            </svg>
+                          </button>
+                          <button className="p-1 hover:bg-gray-100 rounded-full">
+                            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                            </svg>
+                          </button>
+                          <button className="p-1 hover:bg-gray-100 rounded-full">
+                            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Latest Podcast Badge */}
+                <div className="bg-yellow-400 text-black px-3 py-2 rounded-lg text-center font-bold text-sm">
+                  Latest Podcast
                 </div>
               </div>
-            ))}
+            </div>
           </div>
-        </section>
+
+          {/* Right Advertisement */}
+          <div className="col-span-2 hidden lg:block">
+            <div className="bg-gray-200 h-96 flex items-center justify-center text-gray-500 text-xs transform rotate-90">
+              ADVERTISEMENT
+            </div>
+          </div>
+        </div>
       </main>
 
       {/* Footer */}

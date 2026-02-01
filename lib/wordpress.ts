@@ -26,6 +26,11 @@ export interface WordPressPost {
       name: string
       slug: string
     }>>
+    author?: Array<{
+      id: number
+      name: string
+      slug: string
+    }>
   }
 }
 
@@ -117,8 +122,25 @@ export function getFeaturedImage(post: WordPressPost): string {
   if (post._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
     return post._embedded['wp:featuredmedia'][0].source_url
   }
-  // Fallback image
-  return 'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=400&h=250&fit=crop'
+  
+  // If no featured image, try to generate one using OpenAI
+  // For now, use category-based fallback images
+  const categories = getPostCategories(post)
+  const category = categories[0] || 'सामान्य'
+  
+  const fallbackImages = {
+    'World': 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=800&h=400&fit=crop',
+    'देश': 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&h=400&fit=crop',
+    'दुनिया': 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=800&h=400&fit=crop',
+    'खेल': 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&h=400&fit=crop',
+    'मनोरंजन': 'https://images.unsplash.com/photo-1489599904472-af35ff2c7c3d?w=800&h=400&fit=crop',
+    'राजनीति': 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&h=400&fit=crop',
+    'तकनीक': 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=400&fit=crop',
+    'व्यापार': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop',
+    'स्वास्थ्य': 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=400&fit=crop'
+  }
+
+  return fallbackImages[category as keyof typeof fallbackImages] || 'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=800&h=400&fit=crop'
 }
 
 // Helper function to get categories
@@ -139,3 +161,14 @@ export function formatDate(dateString: string): string {
   }
   return date.toLocaleDateString('hi-IN', options)
 }
+
+// Helper function to get post author
+export function getPostAuthor(post: WordPressPost): string {
+  if (post._embedded?.author?.[0]?.name) {
+    return post._embedded.author[0].name;
+  }
+  return 'Admin';
+}
+
+// Alias for fetchWordPressPost to match the blog page import
+export const fetchWordPressPostBySlug = fetchWordPressPost;
