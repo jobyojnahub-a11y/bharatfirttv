@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Clock, MessageCircle, Share2, Bookmark } from 'lucide-react'
 
 interface NewsCardProps {
+  id?: number | string
   title: string
   excerpt: string
   image: string
@@ -16,6 +17,7 @@ interface NewsCardProps {
 }
 
 export default function NewsCard({
+  id,
   title,
   excerpt,
   image,
