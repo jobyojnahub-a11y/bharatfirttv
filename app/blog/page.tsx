@@ -1,5 +1,6 @@
 import Header from '@/components/Header'
 import Link from 'next/link'
+import Image from 'next/image'
 import BlogStatus from '@/components/BlogStatus'
 import { fetchWordPressPosts, getFeaturedImage, getPostCategories, formatDate, cleanHtmlContent, getPostAuthor } from '@/lib/wordpress'
 
@@ -64,9 +65,11 @@ export default async function BlogPage() {
                 <div className="bg-white rounded-xl shadow-xl overflow-hidden">
                   <div className="grid grid-cols-1 lg:grid-cols-2">
                     <div className="relative h-64 lg:h-auto">
-                      <img
+                      <Image
                         src={blogPosts[0].image}
                         alt={blogPosts[0].title}
+                        width={600}
+                        height={256}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute top-4 left-4">
@@ -111,9 +114,11 @@ export default async function BlogPage() {
                 {blogPosts.slice(1).map((post) => (
                   <article key={post.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                     <div className="relative h-48">
-                      <img
+                      <Image
                         src={post.image}
                         alt={post.title}
+                        width={400}
+                        height={192}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute top-3 left-3">

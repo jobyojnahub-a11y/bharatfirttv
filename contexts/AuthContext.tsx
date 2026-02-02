@@ -12,7 +12,8 @@ interface User {
 
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  currentUser: User | null
+  login: (emailOrUser: string | User, password?: string) => Promise<{ success: boolean; error?: string }>
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
   isLoggedIn: boolean
@@ -32,14 +33,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const login = async (email: string, password: string) => {
-    const result = await mockAPI.login(email, password)
-    if (result.success && result.user) {
-      setUser(result.user as User)
-      localStorage.setItem('bharatfirsttv_user', JSON.stringify(result.user))
+  const login = async (emailOrUser: string | User, password?: string) => {
+    // If User object is passed directly (from OTP login)
+    if (typeof emailOrUser === 'object' && emailOrUser !== null) {
+      setUser(emailOrUser)
+      localStorage.setItem('bharatfirsttv_user', JSON.stringify(emailOrUser))
       return { success: true }
     }
-    return { success: false, error: result.error || 'Login failed' }
+    
+    // Traditional email/password login
+    if (typeof emailOrUser === 'string' && password) {
+      const result = await mockAPI.login(emailOrUser, password)
+      if (result.success && result.user) {
+        setUser(result.user as User)
+        localStorage.setItem('bharatfirsttv_user', JSON.stringify(result.user))
+        return { success: true }
+      }
+      return { success: false, error: result.error || 'Login failed' }
+    }
+    
+    return { success: false, error: 'Invalid login parameters' }
   }
 
   const register = async (name: string, email: string, password: string) => {
@@ -59,6 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = {
     user,
+    currentUser: user,
     login,
     register,
     logout,

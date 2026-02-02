@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import Header from '@/components/Header'
 import BreakingNews from '@/components/BreakingNews'
 import NewsCard from '@/components/NewsCard'
@@ -173,9 +174,11 @@ export default function Home() {
                     {/* Main Story Image and Content */}
                     <div className="mb-6">
                       <div className="relative mb-4">
-                        <img
+                        <Image
                           src={mainStory.image}
                           alt={mainStory.title}
+                          width={800}
+                          height={320}
                           className="w-full h-80 object-cover rounded-lg"
                         />
                         <div className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded">
@@ -224,9 +227,11 @@ export default function Home() {
                       {sideStories.map((story) => (
                         <div key={story.id} className="border-t border-gray-200 pt-4">
                           <div className="flex gap-4">
-                            <img
+                            <Image
                               src={story.image}
                               alt={story.title}
+                              width={80}
+                              height={64}
                               className="w-20 h-16 object-cover rounded flex-shrink-0"
                             />
                             <div className="flex-1">

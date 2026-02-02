@@ -2,6 +2,7 @@
 
 import { notFound } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import Header from '@/components/Header'
 import { fetchWordPressPostBySlug, getFeaturedImage, getPostCategories, formatDate, cleanHtmlContent, getPostAuthor } from '@/lib/wordpress'
 import { useAuth } from '@/contexts/AuthContext'
@@ -136,9 +137,11 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               {/* Featured Image Banner */}
               {featuredImage && (
                 <div className="relative h-96 overflow-hidden">
-                  <img
+                  <Image
                     src={featuredImage}
                     alt={post.title.rendered}
+                    width={800}
+                    height={384}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -255,9 +258,11 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               <div className="space-y-4">
                 {[1, 2, 3, 4].map((item) => (
                   <div key={item} className="flex gap-3 hover:bg-gray-50 p-2 rounded cursor-pointer">
-                    <img
+                    <Image
                       src={`https://images.unsplash.com/photo-${1500000000000 + item}?w=80&h=60&fit=crop`}
                       alt="Related news"
+                      width={80}
+                      height={60}
                       className="w-20 h-15 object-cover rounded"
                     />
                     <div className="flex-1">
