@@ -12,7 +12,7 @@ const emailConfig = {
 };
 
 // Create transporter
-const transporter = nodemailer.createTransporter(emailConfig);
+const transporter = nodemailer.createTransport(emailConfig);
 
 // Generate 6-digit OTP
 export function generateOTP(): string {
