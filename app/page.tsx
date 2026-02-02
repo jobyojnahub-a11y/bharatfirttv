@@ -5,6 +5,8 @@ import Header from '@/components/Header'
 import BreakingNews from '@/components/BreakingNews'
 import NewsCard from '@/components/NewsCard'
 import BlogStatus from '@/components/BlogStatus'
+import OTPLoginPanel from '@/components/OTPLoginPanel'
+import { useAuth } from '@/contexts/AuthContext'
 import { fetchWordPressPosts, getFeaturedImage, getPostCategories, formatDate, cleanHtmlContent } from '@/lib/wordpress'
 
 // Fallback news data if WordPress is not available
@@ -40,6 +42,9 @@ export default function Home() {
   const [newsData, setNewsData] = useState<any[]>([])
   const [wordPressPosts, setWordPressPosts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [showLoginPanel, setShowLoginPanel] = useState(false)
+  
+  const { currentUser } = useAuth()
 
   useEffect(() => {
     async function loadPosts() {
@@ -81,6 +86,21 @@ export default function Home() {
 
     loadPosts()
   }, [])
+
+  // Auto-show login panel for new users
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      const hasSeenLoginPanel = localStorage.getItem('hasSeenLoginPanel')
+      if (!hasSeenLoginPanel) {
+        const timer = setTimeout(() => {
+          setShowLoginPanel(true)
+          localStorage.setItem('hasSeenLoginPanel', 'true')
+        }, 3000) // Show after 3 seconds
+        
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [loading, currentUser])
 
   if (loading) {
     return (
@@ -260,11 +280,30 @@ export default function Home() {
       </div>
 
       {/* Latest Podcast Section - Bottom Right */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 right-6 z-40">
         <div className="bg-yellow-500 text-black px-4 py-2 rounded-lg shadow-lg">
           <span className="text-sm font-bold hindi-text">Latest Podcast</span>
         </div>
       </div>
+
+      {/* Login Prompt for Non-Logged Users */}
+      {!currentUser && !showLoginPanel && (
+        <div className="fixed bottom-6 left-6 z-40">
+          <button
+            onClick={() => setShowLoginPanel(true)}
+            className="bg-primary-red text-white px-4 py-2 rounded-lg shadow-lg hover:bg-red-700 transition-colors duration-200 flex items-center space-x-2"
+          >
+            <span className="text-sm font-bold hindi-text">लॉगिन करें</span>
+            <span className="text-lg">🔐</span>
+          </button>
+        </div>
+      )}
+
+      {/* OTP Login Panel */}
+      <OTPLoginPanel 
+        isOpen={showLoginPanel} 
+        onClose={() => setShowLoginPanel(false)} 
+      />
     </div>
   )
 }

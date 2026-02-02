@@ -1,4 +1,24 @@
 // Hardcoded database configuration and mock data
+
+// Interfaces
+export interface User {
+  id: number
+  email: string
+  name: string
+  password?: string
+  role: 'user' | 'admin'
+  createdAt: string
+  isVerified: boolean
+}
+
+export interface OTPSession {
+  email: string
+  otp: string
+  expiresAt: Date
+  attempts: number
+  createdAt: Date
+}
+
 export const DATABASE_CONFIG = {
   // Mock database - in production, use actual database
   users: [
@@ -8,9 +28,13 @@ export const DATABASE_CONFIG = {
       email: 'admin@bharatfirsttv.com',
       password: 'admin123', // In production, use hashed passwords
       role: 'admin',
-      createdAt: '2026-01-01T00:00:00Z'
+      createdAt: '2026-01-01T00:00:00Z',
+      isVerified: true
     }
-  ],
+  ] as User[],
+  
+  // OTP sessions storage
+  otpSessions: [] as OTPSession[],
   
   posts: [
     {
@@ -142,5 +166,85 @@ export const mockAPI = {
     return true
   },
 
-  getFeaturedSections: () => DATABASE_CONFIG.featuredSections
+  getFeaturedSections: () => DATABASE_CONFIG.featuredSections,
+
+  // OTP Management
+  createOTPSession: (email: string, otp: string) => {
+    // Remove any existing OTP session for this email
+    DATABASE_CONFIG.otpSessions = DATABASE_CONFIG.otpSessions.filter(session => session.email !== email)
+    
+    const newSession: OTPSession = {
+      email,
+      otp,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
+      attempts: 0,
+      createdAt: new Date()
+    }
+    
+    DATABASE_CONFIG.otpSessions.push(newSession)
+    return newSession
+  },
+
+  verifyOTP: (email: string, otp: string) => {
+    const session = DATABASE_CONFIG.otpSessions.find(s => s.email === email)
+    
+    if (!session) {
+      return { success: false, error: 'OTP session not found' }
+    }
+    
+    if (session.expiresAt < new Date()) {
+      // Remove expired session
+      DATABASE_CONFIG.otpSessions = DATABASE_CONFIG.otpSessions.filter(s => s.email !== email)
+      return { success: false, error: 'OTP expired' }
+    }
+    
+    session.attempts++
+    
+    if (session.attempts > 3) {
+      // Remove session after too many attempts
+      DATABASE_CONFIG.otpSessions = DATABASE_CONFIG.otpSessions.filter(s => s.email !== email)
+      return { success: false, error: 'Too many attempts' }
+    }
+    
+    if (session.otp !== otp) {
+      return { success: false, error: 'Invalid OTP' }
+    }
+    
+    // OTP verified successfully - remove session
+    DATABASE_CONFIG.otpSessions = DATABASE_CONFIG.otpSessions.filter(s => s.email !== email)
+    return { success: true }
+  },
+
+  // Enhanced user functions
+  findUserByEmail: (email: string) => {
+    return DATABASE_CONFIG.users.find(u => u.email === email)
+  },
+
+  createUserWithOTP: (email: string, name: string, password?: string) => {
+    const existingUser = DATABASE_CONFIG.users.find(u => u.email === email)
+    if (existingUser) {
+      return { success: false, error: 'User already exists' }
+    }
+    
+    const newUser: User = {
+      id: DATABASE_CONFIG.users.length + 1,
+      name,
+      email,
+      password,
+      role: 'user',
+      createdAt: new Date().toISOString(),
+      isVerified: true
+    }
+    
+    DATABASE_CONFIG.users.push(newUser)
+    return { success: true, user: { ...newUser, password: undefined } }
+  },
+
+  loginWithOTP: (email: string) => {
+    const user = DATABASE_CONFIG.users.find(u => u.email === email)
+    if (user) {
+      return { success: true, user: { ...user, password: undefined } }
+    }
+    return { success: false, error: 'User not found' }
+  }
 }
