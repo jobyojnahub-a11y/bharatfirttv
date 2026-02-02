@@ -4,39 +4,39 @@
 
 echo "🚀 Starting Bharat First TV OTP Service Setup...\n\n";
 
-// Step 1: Check if composer is available
-echo "📦 Checking Composer availability...\n";
-$composerCheck = shell_exec('composer --version 2>&1');
-if (strpos($composerCheck, 'Composer') === false) {
-    echo "❌ Composer not found. Installing Composer...\n";
-    
-    // Download and install Composer
-    $composerInstaller = file_get_contents('https://getcomposer.org/installer');
-    if ($composerInstaller) {
-        file_put_contents('composer-setup.php', $composerInstaller);
-        shell_exec('php composer-setup.php --install-dir=. --filename=composer');
-        unlink('composer-setup.php');
-        echo "✅ Composer installed successfully!\n";
-    } else {
-        echo "❌ Failed to download Composer installer\n";
-        echo "Please install Composer manually or download PHPMailer manually\n";
-    }
+// Step 1: Check if shell_exec is available
+echo "🔧 Checking system capabilities...\n";
+$shellExecDisabled = false;
+if (!function_exists('shell_exec') || in_array('shell_exec', explode(',', ini_get('disable_functions')))) {
+    echo "⚠️ shell_exec() is disabled on this server\n";
+    echo "📥 Will download PHPMailer manually...\n";
+    $shellExecDisabled = true;
 } else {
-    echo "✅ Composer is available\n";
+    echo "✅ System functions available\n";
 }
 
-// Step 2: Install PHPMailer via Composer
+// Step 2: Install PHPMailer
 echo "\n📧 Installing PHPMailer...\n";
-if (file_exists('composer.json')) {
-    $installOutput = shell_exec('composer install --no-dev --optimize-autoloader 2>&1');
-    if (strpos($installOutput, 'error') === false && strpos($installOutput, 'failed') === false) {
-        echo "✅ PHPMailer installed successfully via Composer!\n";
+
+if (!$shellExecDisabled && file_exists('composer.json')) {
+    // Try Composer if available
+    echo "📦 Trying Composer installation...\n";
+    $composerCheck = @shell_exec('composer --version 2>&1');
+    if ($composerCheck && strpos($composerCheck, 'Composer') !== false) {
+        echo "✅ Composer found, installing PHPMailer...\n";
+        $installOutput = @shell_exec('composer install --no-dev --optimize-autoloader 2>&1');
+        if ($installOutput && strpos($installOutput, 'error') === false) {
+            echo "✅ PHPMailer installed via Composer!\n";
+        } else {
+            echo "⚠️ Composer install failed, trying manual download...\n";
+            downloadPHPMailerManually();
+        }
     } else {
-        echo "⚠️ Composer install had issues. Trying manual PHPMailer download...\n";
+        echo "⚠️ Composer not available, downloading manually...\n";
         downloadPHPMailerManually();
     }
 } else {
-    echo "⚠️ composer.json not found. Downloading PHPMailer manually...\n";
+    echo "📥 Downloading PHPMailer manually...\n";
     downloadPHPMailerManually();
 }
 
@@ -68,39 +68,63 @@ echo "✅ File permissions set\n";
 
 // Function to download PHPMailer manually
 function downloadPHPMailerManually() {
-    echo "📥 Downloading PHPMailer manually...\n";
+    echo "📥 Downloading PHPMailer files...\n";
     
-    // Create vendor directory structure
-    if (!is_dir('vendor')) mkdir('vendor');
-    if (!is_dir('vendor/phpmailer')) mkdir('vendor/phpmailer');
-    if (!is_dir('vendor/phpmailer/phpmailer')) mkdir('vendor/phpmailer/phpmailer');
-    if (!is_dir('vendor/phpmailer/phpmailer/src')) mkdir('vendor/phpmailer/phpmailer/src');
-    
-    // Download main PHPMailer files
-    $files = [
-        'PHPMailer.php' => 'https://raw.githubusercontent.com/PHPMailer/PHPMailer/master/src/PHPMailer.php',
-        'SMTP.php' => 'https://raw.githubusercontent.com/PHPMailer/PHPMailer/master/src/SMTP.php',
-        'Exception.php' => 'https://raw.githubusercontent.com/PHPMailer/PHPMailer/master/src/Exception.php'
-    ];
-    
-    $downloadSuccess = true;
-    foreach ($files as $filename => $url) {
-        $content = file_get_contents($url);
-        if ($content) {
-            file_put_contents("vendor/phpmailer/phpmailer/src/$filename", $content);
-            echo "✅ Downloaded $filename\n";
-        } else {
-            echo "❌ Failed to download $filename\n";
-            $downloadSuccess = false;
+    try {
+        // Create vendor directory structure
+        $dirs = ['vendor', 'vendor/phpmailer', 'vendor/phpmailer/phpmailer', 'vendor/phpmailer/phpmailer/src'];
+        foreach ($dirs as $dir) {
+            if (!is_dir($dir)) {
+                if (!mkdir($dir, 0755, true)) {
+                    throw new Exception("Failed to create directory: $dir");
+                }
+            }
         }
-    }
-    
-    // Create autoloader
-    if ($downloadSuccess) {
-        $autoloader = '<?php
+        
+        // Download main PHPMailer files
+        $files = [
+            'PHPMailer.php' => 'https://raw.githubusercontent.com/PHPMailer/PHPMailer/master/src/PHPMailer.php',
+            'SMTP.php' => 'https://raw.githubusercontent.com/PHPMailer/PHPMailer/master/src/SMTP.php',
+            'Exception.php' => 'https://raw.githubusercontent.com/PHPMailer/PHPMailer/master/src/Exception.php'
+        ];
+        
+        $downloadSuccess = true;
+        foreach ($files as $filename => $url) {
+            echo "📥 Downloading $filename...\n";
+            
+            // Use curl if available, otherwise file_get_contents
+            $content = false;
+            if (function_exists('curl_init')) {
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+                $content = curl_exec($ch);
+                curl_close($ch);
+            } else {
+                $content = @file_get_contents($url);
+            }
+            
+            if ($content && strlen($content) > 1000) { // Basic validation
+                if (file_put_contents("vendor/phpmailer/phpmailer/src/$filename", $content)) {
+                    echo "✅ Downloaded $filename (" . number_format(strlen($content)) . " bytes)\n";
+                } else {
+                    echo "❌ Failed to save $filename\n";
+                    $downloadSuccess = false;
+                }
+            } else {
+                echo "❌ Failed to download $filename\n";
+                $downloadSuccess = false;
+            }
+        }
+        
+        // Create autoloader
+        if ($downloadSuccess) {
+            $autoloader = '<?php
 // Simple autoloader for PHPMailer
 spl_autoload_register(function ($class) {
-    $prefix = "PHPMailer\\PHPMailer\\";
+    $prefix = "PHPMailer\\\\PHPMailer\\\\";
     $base_dir = __DIR__ . "/phpmailer/phpmailer/src/";
     
     $len = strlen($prefix);
@@ -109,15 +133,28 @@ spl_autoload_register(function ($class) {
     }
     
     $relative_class = substr($class, $len);
-    $file = $base_dir . str_replace("\\", "/", $relative_class) . ".php";
+    $file = $base_dir . str_replace("\\\\", "/", $relative_class) . ".php";
     
     if (file_exists($file)) {
         require $file;
     }
 });
 ';
-        file_put_contents('vendor/autoload.php', $autoloader);
-        echo "✅ PHPMailer autoloader created!\n";
+            if (file_put_contents('vendor/autoload.php', $autoloader)) {
+                echo "✅ PHPMailer autoloader created!\n";
+                return true;
+            } else {
+                echo "❌ Failed to create autoloader\n";
+                return false;
+            }
+        } else {
+            echo "❌ PHPMailer download incomplete\n";
+            return false;
+        }
+        
+    } catch (Exception $e) {
+        echo "❌ Error during manual download: " . $e->getMessage() . "\n";
+        return false;
     }
 }
 
@@ -125,38 +162,26 @@ spl_autoload_register(function ($class) {
 echo "\n📧 Testing email configuration...\n";
 
 if (file_exists('vendor/autoload.php')) {
-    require_once 'vendor/autoload.php';
-    
-    use PHPMailer\PHPMailer\PHPMailer;
-    use PHPMailer\PHPMailer\SMTP;
-    use PHPMailer\PHPMailer\Exception;
-    
-    $mail = new PHPMailer(true);
-    
     try {
-        // SMTP configuration
-        $mail->isSMTP();
-        $mail->Host = 'mail.bharatfirsttv.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'login@bharatfirsttv.com';
-        $mail->Password = 'otpsendkrnekapasswordhaiyrr';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-        $mail->Timeout = 10;
+        require_once 'vendor/autoload.php';
         
-        // Test connection (without sending)
-        $mail->SMTPDebug = 0; // Disable debug output
-        echo "✅ Email configuration setup completed!\n";
-        echo "✅ SMTP Host: mail.bharatfirsttv.com\n";
-        echo "✅ Port: 587 (STARTTLS)\n";
-        echo "✅ Username: login@bharatfirsttv.com\n";
+        if (class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+            echo "✅ PHPMailer classes loaded successfully!\n";
+            echo "✅ SMTP Host: mail.bharatfirsttv.com\n";
+            echo "✅ Port: 587 (STARTTLS)\n";
+            echo "✅ Username: login@bharatfirsttv.com\n";
+            echo "✅ Email service ready!\n";
+        } else {
+            echo "⚠️ PHPMailer classes not found\n";
+        }
         
     } catch (Exception $e) {
-        echo "⚠️ Email configuration warning: " . $e->getMessage() . "\n";
-        echo "💡 This is normal - email will work when actually sending\n";
+        echo "⚠️ PHPMailer load error: " . $e->getMessage() . "\n";
+        echo "💡 Email functionality may still work during actual usage\n";
     }
 } else {
-    echo "⚠️ PHPMailer not found. Email functionality may not work.\n";
+    echo "⚠️ PHPMailer autoloader not found\n";
+    echo "💡 Please check if PHPMailer was downloaded correctly\n";
 }
 
 // Step 5: Final status
