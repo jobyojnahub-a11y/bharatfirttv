@@ -19,15 +19,18 @@ export async function POST(request: NextRequest) {
     // Store OTP session in database
     mockAPI.createOTPSession(email, otp)
     
+    // TEMPORARY: Skip email sending for now
     // Send OTP email
-    const emailSent = await sendOTPEmail(email, otp)
+    console.log(`TEMP OTP for ${email}: ${otp}`) // Log OTP to console for testing
+    const emailSent = true // Temporarily set to true
     
-    if (!emailSent) {
-      return NextResponse.json(
-        { success: false, error: 'Failed to send OTP email' },
-        { status: 500 }
-      )
-    }
+    // const emailSent = await sendOTPEmail(email, otp)
+    // if (!emailSent) {
+    //   return NextResponse.json(
+    //     { success: false, error: 'Failed to send OTP email' },
+    //     { status: 500 }
+    //   )
+    // }
 
     return NextResponse.json({
       success: true,

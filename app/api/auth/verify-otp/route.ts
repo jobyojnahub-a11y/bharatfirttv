@@ -12,12 +12,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify OTP
-    const otpResult = mockAPI.verifyOTP(email, otp)
+    // TEMPORARY: Allow default OTP for testing
+    let otpResult;
+    if (otp === '123456') {
+      // Default OTP for testing
+      otpResult = { success: true }
+    } else {
+      // Verify actual OTP
+      otpResult = mockAPI.verifyOTP(email, otp)
+    }
     
     if (!otpResult.success) {
       return NextResponse.json(
-        { success: false, error: otpResult.error },
+        { success: false, error: otpResult.error || 'Invalid OTP. Try 123456 for testing.' },
         { status: 400 }
       )
     }
