@@ -1,0 +1,14 @@
+{
+    "name": "bharatfirsttv/otp-service",
+    "description": "PHP OTP Service for Bharat First TV",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "phpmailer/phpmailer": "^6.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "BharatFirstTV\\OTP\\": "src/"
+        }
+    }
+}
