@@ -104,8 +104,9 @@ export const mockAPI = {
       name,
       email,
       password,
-      role: 'user',
-      createdAt: new Date().toISOString()
+      role: 'user' as const,
+      createdAt: new Date().toISOString(),
+      isVerified: false
     }
     
     DATABASE_CONFIG.users.push(newUser)
