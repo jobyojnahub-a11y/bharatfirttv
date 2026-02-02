@@ -1,25 +1,25 @@
 import nodemailer from 'nodemailer';
 
-// Email configuration with provided credentials
+// Using Gmail SMTP (you need to setup App Password)
 const emailConfig = {
+  service: 'gmail',
+  auth: {
+    user: 'bharatfirsttv.otp@gmail.com', // Create this Gmail account
+    pass: 'app-password-here' // Generate App Password from Gmail
+  }
+};
+
+// Backup: Original domain email (currently not working)
+const domainEmailConfig = {
   host: 'mail.bharatfirsttv.com',
-  port: 587, // Use 587 for STARTTLS
-  secure: false, // Use STARTTLS instead of SSL
+  port: 587,
+  secure: false,
   auth: {
     user: 'login@bharatfirsttv.com',
     pass: 'otpsendkrnekapasswordhaiyrr'
   },
   tls: {
-    rejectUnauthorized: false // Accept self-signed certificates
-  }
-};
-
-// Backup Gmail configuration (if main fails)
-const gmailConfig = {
-  service: 'gmail',
-  auth: {
-    user: 'your-gmail@gmail.com', // Replace with actual Gmail
-    pass: 'your-app-password' // Replace with actual app password
+    rejectUnauthorized: false
   }
 };
 
