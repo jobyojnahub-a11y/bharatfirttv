@@ -3,11 +3,23 @@ import nodemailer from 'nodemailer';
 // Email configuration with provided credentials
 const emailConfig = {
   host: 'mail.bharatfirsttv.com',
-  port: 465,
-  secure: true, // SSL
+  port: 587, // Use 587 for STARTTLS
+  secure: false, // Use STARTTLS instead of SSL
   auth: {
     user: 'login@bharatfirsttv.com',
     pass: 'otpsendkrnekapasswordhaiyrr'
+  },
+  tls: {
+    rejectUnauthorized: false // Accept self-signed certificates
+  }
+};
+
+// Backup Gmail configuration (if main fails)
+const gmailConfig = {
+  service: 'gmail',
+  auth: {
+    user: 'your-gmail@gmail.com', // Replace with actual Gmail
+    pass: 'your-app-password' // Replace with actual app password
   }
 };
 
@@ -89,6 +101,11 @@ export async function sendOTPEmail(email: string, otp: string): Promise<boolean>
     return true;
   } catch (error) {
     console.error('Error sending OTP email:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      code: (error as any)?.code,
+      response: (error as any)?.response
+    });
     return false;
   }
 }
