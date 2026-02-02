@@ -12,24 +12,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // TEMPORARY: Allow default OTP for testing
-    let otpResult;
-    if (otp === '123456') {
-      // Default OTP for testing
-      otpResult = { success: true }
-    } else {
-      // Verify actual OTP
-      otpResult = mockAPI.verifyOTP(email, otp)
-    }
+    // Forward request to PHP OTP service for verification
+    const response = await fetch('https://otp.bharatfirsttv.com/verify-otp.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, otp })
+    })
+
+    const result = await response.json()
     
-    if (!otpResult.success) {
-      return NextResponse.json(
-        { success: false, error: otpResult.error || 'Invalid OTP. Try 123456 for testing.' },
-        { status: 400 }
-      )
+    // Log for debugging
+    console.log(`OTP verification for ${email}:`, result)
+    
+    if (!result.success) {
+      return NextResponse.json(result, { status: response.status })
     }
 
-    // Check if user exists
+    // OTP verified successfully - now check our user database
     const existingUser = mockAPI.findUserByEmail(email)
     
     if (existingUser) {

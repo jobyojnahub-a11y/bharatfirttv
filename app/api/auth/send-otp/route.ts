@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateOTP, sendOTPEmail } from '@/lib/emailService'
-import { mockAPI } from '@/lib/database'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,29 +11,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate OTP
-    const otp = generateOTP()
-    
-    // Store OTP session in database
-    mockAPI.createOTPSession(email, otp)
-    
-    // Send OTP email
-    console.log(`Sending OTP to ${email}: ${otp}`) // Log for debugging
-    const emailSent = await sendOTPEmail(email, otp)
-    
-    if (!emailSent) {
-      // Still log OTP for backup
-      console.log(`BACKUP - OTP for ${email}: ${otp}`)
-      return NextResponse.json(
-        { success: false, error: 'Failed to send OTP email. Check server logs for OTP.' },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: 'OTP sent successfully to your email'
+    // Forward request to PHP OTP service
+    const response = await fetch('https://otp.bharatfirsttv.com/send-otp.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email })
     })
+
+    const result = await response.json()
+    
+    // Log for debugging
+    console.log(`OTP request for ${email}:`, result)
+    
+    return NextResponse.json(result, { status: response.status })
 
   } catch (error) {
     console.error('Send OTP error:', error)
